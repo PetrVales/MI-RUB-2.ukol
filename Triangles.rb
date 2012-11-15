@@ -31,21 +31,24 @@ class Triangle
 	end
 
 	def area 
-		((@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)).abs / 2.0).round(5).abs
+		(@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)).abs / 2.0
 	end
 
 	def union(triangle)
 		if (contains?(triangle.a) && contains?(triangle.b) && contains?(triangle.c))
-			# Polygon.new([a, b, c])
-			self
+			Polygon.new([a, b, c])
+			# self
 		elsif (triangle.contains?(a) && triangle.contains?(b) && triangle.contains?(c))
-			# Polygon.new([triangle.a, triangle.b, triangle.c])
-			triangle
+			Polygon.new([triangle.a, triangle.b, triangle.c])
+			# triangle
 		else
 			polygon = []
-			buildPolygon(polygon, triangle.a)
-			buildPolygon(polygon, triangle.b)
-			buildPolygon(polygon, triangle.c)
+			buildPolygon(self, polygon, triangle.a)
+			buildPolygon(self, polygon, triangle.b)
+			buildPolygon(self, polygon, triangle.c)
+			buildPolygon(triangle, polygon, a)
+			buildPolygon(triangle, polygon, b)
+			buildPolygon(triangle, polygon, c)
 			addLineIntersects(polygon, triangle)
 			# puts polygon.to_s
 			if polygon.length > 0 then
@@ -72,8 +75,8 @@ class Triangle
 	def dotProduct(i, j)
 		i * j
 	end
-	def buildPolygon(polygon, p)
-		if (contains?(p))
+	def buildPolygon(triangle, polygon, p)
+		if (triangle.contains?(p))
 			polygon.push(p)
 		end
 	end
@@ -119,7 +122,7 @@ class Polygon
 		for i in 0..(@vertices.length - 1)
 			sum += @vertices[i].x * @vertices[(i + 1) % @vertices.length].y - @vertices[(i + 1) % @vertices.length].x * @vertices[i].y
 		end
-		(sum / 2).round(5).abs
+		(sum / 2).round(4).abs
 	end
 
 	def ==(polygon)
@@ -153,7 +156,7 @@ class CompositePolygon < Polygon
 
 	def area
 		# puts @a.area.to_s + " + " + @b.area.to_s + " - " + @p.area.to_s
-		(@a.area + @b.area - @p.area).round(5)
+		(@a.area + @b.area - @p.area).round(4)
 	end
 
 
@@ -204,13 +207,13 @@ class Line
 		@y = y
 	end
 
-	def contains(p)
-		slope = ((@x.y - @y.y).to_f / (@x.x - @y.x))
-		slopeXP = ((@x.y - p.y).to_f / (@x.x - p.x))
-		slopePY = ((p.y - @y.y).to_f / (p.x - @y.x))
-		# puts slope.to_s + " ; " + slopeXP.to_s + " ; " + slopePY.to_s + "              " + @x.to_s + " ; " + @y.to_s + " ; " + p.to_s
-		(slope == slopeXP) && (slope == slopePY) && (p.x <= @x.x || p.x <= @y.x) && (p.y <= @x.y || p.y <= @y.y)
-	end
+	# def contains(p)
+	# 	slope = ((@x.y - @y.y).to_f / (@x.x - @y.x))
+	# 	slopeXP = ((@x.y - p.y).to_f / (@x.x - p.x))
+	# 	slopePY = ((p.y - @y.y).to_f / (p.x - @y.x))
+	# 	# puts slope.to_s + " ; " + slopeXP.to_s + " ; " + slopePY.to_s + "              " + @x.to_s + " ; " + @y.to_s + " ; " + p.to_s
+	# 	(slope == slopeXP) && (slope == slopePY) && (p.x <= @x.x || p.x <= @y.x) && (p.y <= @x.y || p.y <= @y.y)
+	# end
 
 	def intersect(line)
 		x1 = @x.x
@@ -232,9 +235,10 @@ class Line
 			if (y.zero?)
 				y = 0.0
 			end
-			p = Point.new(x, y)
-			if (!p.x.nan? && !p.y.nan? && p.x.finite? && p.y.finite? && contains(p) && line.contains(p))
-				return p
+			# p = Point.new(x, y)
+			# puts p
+			if (!x.nan? && !y.nan? && x.finite? && y.finite?)
+				return Point.new(x, y)
 			else
 				return nil
 			end
@@ -268,20 +272,29 @@ class Solver
 		if (union == nil) then
 			puts "Trojuhelniky se nedotykaji."
 		else
-			puts "Vysledny obsah: " + union.area.to_s
+			puts "Vysledny obsah: %.4f" % union.area.to_s
 		end
 	end
 
 	private 
 	def readPoint
 		begin
-			x = Float(gets(' '))
-			y = Float(gets(' '))
+			skipWhiteSpaces
+			x = Float(gets(' ').strip)
+			skipWhiteSpaces
+			y = Float(gets(' ').strip)
 			Point.new(x, y)
-		rescue ArgumentError
+		rescue ArgumentError, NoMethodError
 			puts "Spatny vstup."
 			exit
 		end
 	end
+	def skipWhiteSpaces
+		c = gets(' ')
+		while c.strip.empty? && !STDIN.eof?
+			c = gets(' ')
+		end
+		STDIN.ungetc(c) 
+	end
 end
-Solver.new.solve
+# Solver.new.solve

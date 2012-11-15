@@ -133,22 +133,6 @@ describe Point do
 end
 
 describe Line do
-  # it "creates line defined by two points" do
-  #   point1 = Point.new(0, 0)
-  #   point2 = Point.new(4, 4)
-  #   line = Line.new(point1, point2)
-  #   line.contains(Point.new(1, 1)).should eq(true)
-  #   line.contains(Point.new(1, 2)).should eq(false)
-  #   line.contains(Point.new(5, 5)).should eq(false)
-  #   line = Line.new(Point.new(10, 5),Point.new(0, -5))
-  #   line.contains(Point.new(12.5, 7.5)).should eq(false)
-  #   Line.new(Point.new(0, 0), Point.new(0, 10)).contains(Point.new(0, 9)).should eq(true)
-  #   Line.new(Point.new(0, 0), Point.new(0, 10)).contains(Point.new(0, 11)).should eq(false)
-  #   Line.new(Point.new(0, 0), Point.new(20, 0)).contains(Point.new(0, -5)).should eq(false)
-  #   Line.new(Point.new(0, 0), Point.new(0, 20)).contains(Point.new(0, -5)).should eq(false)
-  #   Line.new(Point.new(0, 20), Point.new(20, 0)).contains(Point.new(0, -5)).should eq(false)
-  # end
-
   it "intersect with another line in a point" do
     line1 = Line.new(Point.new(0, 0), Point.new(1, 1))
     line2 = Line.new(Point.new(0, 1), Point.new(1, 0))

@@ -31,16 +31,20 @@ class Triangle
 	end
 
 	def area 
-		(@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)).abs / 2.0
+		# ((@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)) / 2.0).abs.round(4)
+		((@a.x * @b.y + @b.x*@c.y + @c.x*@a.y - @a.y*@b.x - @b.y*@c.x - @c.y*@a.x) / 2.0).abs.round(4)
+	end
+
+	def areaNoRound
+		# ((@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)) / 2.0).abs
+		(((@a.x * @b.y + @b.x*@c.y + @c.x*@a.y - @a.y*@b.x - @b.y*@c.x - @c.y*@a.x)) / 2.0).abs
 	end
 
 	def union(triangle)
 		if (contains?(triangle.a) && contains?(triangle.b) && contains?(triangle.c))
-			Polygon.new([a, b, c])
-			# self
+			self
 		elsif (triangle.contains?(a) && triangle.contains?(b) && triangle.contains?(c))
-			Polygon.new([triangle.a, triangle.b, triangle.c])
-			# triangle
+			triangle
 		else
 			polygon = []
 			buildPolygon(self, polygon, triangle.a)
@@ -50,7 +54,6 @@ class Triangle
 			buildPolygon(triangle, polygon, b)
 			buildPolygon(triangle, polygon, c)
 			addLineIntersects(polygon, triangle)
-			# puts polygon.to_s
 			if polygon.length > 0 then
 				CompositePolygon.new(self, triangle, Polygon.new(polygon))
 			else
@@ -122,7 +125,15 @@ class Polygon
 		for i in 0..(@vertices.length - 1)
 			sum += @vertices[i].x * @vertices[(i + 1) % @vertices.length].y - @vertices[(i + 1) % @vertices.length].x * @vertices[i].y
 		end
-		(sum / 2).round(4).abs
+		(sum / 2.0).round(4).abs
+	end
+
+	def areaNoRound
+		sum = 0
+		for i in 0..(@vertices.length - 1)
+			sum += @vertices[i].x * @vertices[(i + 1) % @vertices.length].y - @vertices[(i + 1) % @vertices.length].x * @vertices[i].y
+		end
+		(sum / 2.0).abs
 	end
 
 	def ==(polygon)
@@ -142,7 +153,7 @@ class Polygon
 		sumX = 0.0
 		sumY = 0.0
 		vertices.each {|x| sumX += x.x; sumY += x.y }
-		Point.new(sumX / vertices.length, sumY / vertices.length)
+		Point.new(sumX.to_f / vertices.length, sumY.to_f / vertices.length)
 	end
 end
 
@@ -155,8 +166,7 @@ class CompositePolygon < Polygon
 	end
 
 	def area
-		# puts @a.area.to_s + " + " + @b.area.to_s + " - " + @p.area.to_s
-		(@a.area + @b.area - @p.area).round(4)
+		(@a.areaNoRound + @b.areaNoRound - @p.areaNoRound).round(4)
 	end
 
 
@@ -207,14 +217,6 @@ class Line
 		@y = y
 	end
 
-	# def contains(p)
-	# 	slope = ((@x.y - @y.y).to_f / (@x.x - @y.x))
-	# 	slopeXP = ((@x.y - p.y).to_f / (@x.x - p.x))
-	# 	slopePY = ((p.y - @y.y).to_f / (p.x - @y.x))
-	# 	# puts slope.to_s + " ; " + slopeXP.to_s + " ; " + slopePY.to_s + "              " + @x.to_s + " ; " + @y.to_s + " ; " + p.to_s
-	# 	(slope == slopeXP) && (slope == slopePY) && (p.x <= @x.x || p.x <= @y.x) && (p.y <= @x.y || p.y <= @y.y)
-	# end
-
 	def intersect(line)
 		x1 = @x.x
 		y1 = @x.y
@@ -228,15 +230,7 @@ class Line
 			return nil
 		else
 			x = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)).to_f / ((x1 -x2)*(y3 - y4) - (y1 - y2)*(x3 - x4))
-			if (x.zero?)
-				x = 0.0
-			end
 			y = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4)).to_f / ((x1 -x2)*(y3 - y4) - (y1 - y2)*(x3 - x4))
-			if (y.zero?)
-				y = 0.0
-			end
-			# p = Point.new(x, y)
-			# puts p
 			if (!x.nan? && !y.nan? && x.finite? && y.finite?)
 				return Point.new(x, y)
 			else
@@ -297,4 +291,4 @@ class Solver
 		STDIN.ungetc(c) 
 	end
 end
-# Solver.new.solve
+Solver.new.solve

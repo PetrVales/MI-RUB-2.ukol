@@ -31,14 +31,16 @@ class Triangle
 	end
 
 	def area 
-		(@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)).abs / 2.0
+		((@a.x * (@b.y - @c.y) + @b.x * (@c.y - @a.y) + @c.x * (@a.y - @b.y)).abs / 2.0).round(5).abs
 	end
 
 	def union(triangle)
 		if (contains?(triangle.a) && contains?(triangle.b) && contains?(triangle.c))
-			Polygon.new([a, b, c])
+			# Polygon.new([a, b, c])
+			self
 		elsif (triangle.contains?(a) && triangle.contains?(b) && triangle.contains?(c))
-			Polygon.new([triangle.a, triangle.b, triangle.c])
+			# Polygon.new([triangle.a, triangle.b, triangle.c])
+			triangle
 		else
 			polygon = []
 			buildPolygon(polygon, triangle.a)
@@ -49,7 +51,7 @@ class Triangle
 			if polygon.length > 0 then
 				CompositePolygon.new(self, triangle, Polygon.new(polygon))
 			else
-				raise "no intersect area"
+				nil
 			end
 		end
 	end
@@ -151,7 +153,7 @@ class CompositePolygon < Polygon
 
 	def area
 		# puts @a.area.to_s + " + " + @b.area.to_s + " - " + @p.area.to_s
-		@a.area + @b.area - @p.area
+		(@a.area + @b.area - @p.area).round(5)
 	end
 
 
@@ -247,3 +249,39 @@ class Line
 		@y
 	end
 end
+
+class Solver
+	def solve
+		puts "Zadejte souradnice prvniho vrcholu prvniho trojuhelniku: "
+		a = readPoint
+		puts "Zadejte souradnice druheho vrcholu prvniho trojuhelniku: "
+		b = readPoint
+		puts "Zadejte souradnice tretiho vrcholu prvniho trojuhelniku: "
+		c = readPoint
+		puts "Zadejte souradnice prvniho vrcholu druheho trojuhelniku: "
+		x = readPoint
+		puts "Zadejte souradnice druheho vrcholu druheho trojuhelniku: "
+		y = readPoint
+		puts "Zadejte souradnice tretiho vrcholu druheho trojuhelniku: "
+		z = readPoint
+		union = Triangle.new(a, b, c).union(Triangle.new(x, y, z))
+		if (union == nil) then
+			puts "Trojuhelniky se nedotykaji."
+		else
+			puts "Vysledny obsah: " + union.area.to_s
+		end
+	end
+
+	private 
+	def readPoint
+		begin
+			x = Float(gets(' '))
+			y = Float(gets(' '))
+			Point.new(x, y)
+		rescue ArgumentError
+			puts "Spatny vstup."
+			exit
+		end
+	end
+end
+Solver.new.solve

@@ -88,7 +88,7 @@ describe Triangle do
   it "creats polygon when unioned with a triangle - no intersect" do
     firstTriangle = Triangle.new(Point.new(1, 1), Point.new(20, 1), Point.new(1, 20))
     secondTriangle = Triangle.new(Point.new(-1, -1), Point.new(-20, -1), Point.new(-1, -20))
-    expect { firstTriangle.union(secondTriangle) }.to raise_error
+    firstTriangle.union(secondTriangle).should eq(nil)
   end
 
 end

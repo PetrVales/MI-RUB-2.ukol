@@ -1,4 +1,4 @@
-require './Triangles.rb'
+require './hw2.rb'
 
 describe Triangle do
 
